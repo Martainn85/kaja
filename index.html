@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procesy poznawcze, test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Spectral:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4ecdc;
+    --card: #fbf6ec;
+    --ink: #2c2519;
+    --muted: #7c7058;
+    --line: #e3d6bd;
+    --gold: #b1842f;
+    --gold-soft: #d9b76a;
+    --good: #4f7a4d;
+    --good-bg: #e9f0e2;
+    --bad: #a8483a;
+    --bad-bg: #f4e2dd;
+    --shadow: 0 1px 2px rgba(44,37,25,.05), 0 8px 28px rgba(44,37,25,.07);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.6;
+    padding: 32px 18px 80px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  .masthead { text-align: center; margin-bottom: 28px; }
+  .eyebrow {
+    font-family: 'Spectral', serif;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--gold);
+    font-weight: 600;
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(30px, 6vw, 46px);
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: -.01em;
+  }
+  .rule {
+    width: 54px; height: 3px; background: var(--gold);
+    margin: 16px auto 0; border-radius: 2px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 28px 26px;
+  }
+  @media (max-width: 520px) { .card { padding: 22px 18px; } }
+
+  .lead { color: var(--muted); margin: 0 0 22px; }
+
+  .field-label {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 17px;
+    margin: 0 0 12px;
+    display: block;
+  }
+  .choices { display: grid; gap: 10px; margin-bottom: 26px; }
+  .seg {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .seg button {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 13px 8px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: .15s;
+  }
+  .seg button:hover { border-color: var(--gold-soft); }
+  .seg button.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #fff;
+  }
+  .topics { display: grid; gap: 8px; margin-bottom: 26px; }
+  .topic-row {
+    display: flex; align-items: center; gap: 11px;
+    padding: 11px 14px; border: 1px solid var(--line);
+    border-radius: 10px; background: #fff; cursor: pointer;
+    user-select: none;
+  }
+  .topic-row .tick {
+    width: 20px; height: 20px; border-radius: 5px;
+    border: 1.5px solid var(--gold-soft); flex: none;
+    display: grid; place-items: center; transition: .15s;
+  }
+  .topic-row.on .tick { background: var(--gold); border-color: var(--gold); }
+  .topic-row.on .tick::after { content: "✓"; color: #fff; font-size: 13px; font-weight: 700; }
+  .topic-row .t-name { flex: 1; }
+  .topic-row .t-count { color: var(--muted); font-size: 14px; }
+
+  .btn {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 17px;
+    padding: 14px 26px;
+    border: none;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: .15s;
+    width: 100%;
+  }
+  .btn:hover { background: #43392a; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.ghost {
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .btn.ghost:hover { background: #fff; border-color: var(--gold-soft); }
+
+  /* progress */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px; font-size: 14px; color: var(--muted);
+    font-family: 'Spectral', serif;
+  }
+  .topbar .score { color: var(--gold); font-weight: 600; }
+  .track { height: 6px; background: var(--line); border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
+  .bar { height: 100%; background: var(--gold); width: 0; transition: width .35s; }
+
+  .q-topic {
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin: 0 0 8px;
+  }
+  .q-text {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(20px, 3.4vw, 25px);
+    line-height: 1.3;
+    margin: 0 0 22px;
+  }
+  .opt {
+    display: flex; gap: 13px; align-items: flex-start;
+    width: 100%; text-align: left;
+    padding: 15px 16px; margin-bottom: 11px;
+    border: 1px solid var(--line); background: #fff;
+    border-radius: 11px; cursor: pointer;
+    font-family: 'Spectral', serif; font-size: 17px; line-height: 1.45;
+    color: var(--ink); transition: .12s;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--gold-soft); }
+  .opt .key {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    width: 26px; height: 26px; flex: none; border-radius: 7px;
+    background: var(--paper); display: grid; place-items: center;
+    font-size: 14px; color: var(--muted); transition: .12s;
+  }
+  .opt.correct { background: var(--good-bg); border-color: var(--good); }
+  .opt.correct .key { background: var(--good); color: #fff; }
+  .opt.wrong { background: var(--bad-bg); border-color: var(--bad); }
+  .opt.wrong .key { background: var(--bad); color: #fff; }
+  .opt:disabled { cursor: default; }
+
+  .explain {
+    margin: 4px 0 22px;
+    padding: 15px 17px;
+    background: var(--paper);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 9px 9px 0;
+    font-size: 16px;
+  }
+  .explain b { font-family: 'Fraunces', serif; }
+  .nav { display: flex; gap: 12px; }
+  .nav .btn { width: auto; flex: 1; }
+
+  /* results */
+  .result-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(54px, 12vw, 86px);
+    line-height: 1; color: var(--gold);
+    text-align: center; margin: 6px 0 2px;
+  }
+  .result-sub { text-align: center; color: var(--muted); margin: 0 0 24px; }
+  .breakdown { display: grid; gap: 12px; margin: 22px 0 26px; }
+  .bd-row { }
+  .bd-head { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 6px; }
+  .bd-head .nm { font-family: 'Fraunces', serif; font-weight: 600; }
+  .bd-head .vl { color: var(--muted); }
+  .bd-track { height: 8px; background: var(--line); border-radius: 5px; overflow: hidden; }
+  .bd-fill { height: 100%; background: var(--gold-soft); border-radius: 5px; }
+
+  .review-q { margin: 18px 0; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .review-q:last-child { border-bottom: none; }
+  .review-q .rq { font-family: 'Fraunces', serif; font-weight: 600; margin: 0 0 8px; font-size: 17px; }
+  .review-q .ra { font-size: 15px; margin: 3px 0; }
+  .review-q .ra.bad { color: var(--bad); }
+  .review-q .ra.good { color: var(--good); }
+  .section-title {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px;
+    margin: 30px 0 4px;
+  }
+  .hide { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <p class="eyebrow">Uniwersytet VIZJA &middot; psychologia</p>
+    <h1>Procesy poznawcze</h1>
+    <div class="rule"></div>
+  </div>
+
+  <!-- START -->
+  <section id="start" class="card">
+    <p class="lead">Test jednokrotnego wyboru oparty na materiale z wykładów: wprowadzenie do psychologii poznawczej, percepcja wzrokowa, uwaga i kontrola poznawcza. Wybierz zakres i długość, a kolejność pytań oraz odpowiedzi będzie losowana.</p>
+
+    <span class="field-label">Zakres materiału</span>
+    <div class="topics" id="topicList"></div>
+
+    <span class="field-label">Liczba pytań</span>
+    <div class="seg" id="lenSeg"></div>
+
+    <button class="btn" id="startBtn" style="margin-top:22px">Rozpocznij test</button>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="card hide">
+    <div class="topbar">
+      <span id="counter">Pytanie 1 z 20</span>
+      <span class="score" id="scoreLive">0 popr.</span>
+    </div>
+    <div class="track"><div class="bar" id="bar"></div></div>
+
+    <p class="q-topic" id="qTopic"></p>
+    <h2 class="q-text" id="qText"></h2>
+    <div id="opts"></div>
+    <div class="explain hide" id="explain"></div>
+    <div class="nav hide" id="navRow">
+      <button class="btn" id="nextBtn">Następne pytanie</button>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="card hide">
+    <p class="eyebrow" style="text-align:center">Wynik</p>
+    <div class="result-num" id="finalPct">0%</div>
+    <p class="result-sub" id="finalLine"></p>
+
+    <div class="breakdown" id="breakdown"></div>
+
+    <div class="nav">
+      <button class="btn ghost" id="restartBtn">Nowy test</button>
+      <button class="btn" id="toggleReview">Pokaż błędy</button>
+    </div>
+
+    <div id="reviewWrap" class="hide">
+      <p class="section-title">Pytania z błędną odpowiedzią</p>
+      <div id="reviewList"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  // ===== WPROWADZENIE I REPREZENTACJE =====
+  { topic: "wprow", q: "Zadaniem psychologii poznawczej jest badanie:", c: "mechanizmów poznawczych sterujących zachowaniem", w: ["nieświadomych konfliktów wewnętrznych", "wyłącznie obserwowalnych reakcji na bodźce", "wpływu środowiska społecznego na postawy"], e: "Psychologia poznawcza bada mechanizmy poznawcze, które sterują zachowaniem." },
+  { topic: "wprow", q: "Przedmiotem zainteresowań psychologii poznawczej jest przede wszystkim:", c: "umysł jako system wyspecjalizowany w odbiorze i przetwarzaniu informacji", w: ["mózg jako narząd anatomiczny", "zachowanie grupowe", "procesy emocjonalne"], e: "Przedmiotem jest umysł, czyli złożony system odbioru i przetwarzania informacji." },
+  { topic: "wprow", q: "Do zaawansowanych metod badawczych psychologii poznawczej zalicza się:", c: "obrazowanie mózgu i obliczeniowe modelowanie procesów poznawczych", w: ["introspekcję", "wywiad kliniczny", "obserwację naturalną"], e: "Metody podstawowe to obserwacja i eksperyment, zaawansowane to obrazowanie mózgu oraz modelowanie obliczeniowe." },
+  { topic: "wprow", q: "Przetwarzanie informacji w ujęciu poznawczym polega na:", c: "manipulowaniu reprezentacjami umysłowymi świata", w: ["biernym rejestrowaniu bodźców", "wzmacnianiu reakcji warunkowych", "tłumieniu popędów"], e: "Polega na manipulowaniu reprezentacjami po to, by je zinterpretować i tworzyć nowe reprezentacje." },
+  { topic: "wprow", q: "Określenie skąpiec poznawczy oznacza, że człowiek:", c: "angażuje tylko część zasobów poznawczych, chroniąc system przed przeciążeniem", w: ["przetwarza wszystkie docierające informacje", "unika podejmowania decyzji", "preferuje wyłącznie proste bodźce"], e: "Selekcja danych chroni system o ograniczonej pojemności przed przeciążeniem." },
+  { topic: "wprow", q: "Ekonomia przetwarzania informacji wynika przede wszystkim z:", c: "ograniczonej pojemności umysłu", w: ["lenistwa poznawczego", "braku motywacji", "niskiej inteligencji"], e: "Większość informacji jest zbędna, a umysł i tak nie przetworzyłby wszystkiego z powodu ograniczonej pojemności." },
+  { topic: "wprow", q: "Struktury poznawcze to:", c: "względnie trwałe elementy umysłu, możliwe do wielokrotnego wykorzystania", w: ["chwilowe stany pobudzenia", "reakcje odruchowe", "bodźce dystalne"], e: "Powstają dzięki procesom poznawczym i można je wykorzystywać w różnych sytuacjach." },
+  { topic: "wprow", q: "Do struktur poznawczych NIE zalicza się:", c: "wrażeń zmysłowych", w: ["wiedzy", "schematów poznawczych", "przekonań"], e: "Do struktur zalicza się wiedzę, sądy, przekonania i schematy poznawcze." },
+  { topic: "wprow", q: "Magazynem przechowującym struktury poznawcze jest:", c: "pamięć", w: ["uwaga", "percepcja", "świadomość"], e: "To w pamięci przechowywane są struktury poznawcze." },
+  { topic: "wprow", q: "Kontrola poznawcza to:", c: "zdolność systemu struktur poznawczych do samoregulacji i samoorganizacji", w: ["hamowanie reakcji emocjonalnych", "świadome zapamiętywanie", "selekcja bodźców wzrokowych"], e: "To zdolność systemu tworzonego przez struktury poznawcze do samoregulacji." },
+  { topic: "wprow", q: "Zjawisko, w którym ta sama informacja może być przetwarzana z różną intensywnością i starannością, to:", c: "poziomy przetwarzania informacji", w: ["kontekst", "ekonomia przetwarzania", "kontrola poznawcza"], e: "Poziom przetwarzania zależy od wymagań zadania lub nawyku." },
+  { topic: "wprow", q: "Reprezentacja poznawcza (umysłowa) to:", c: "coś oznaczającego, zajmującego miejsce czegoś lub przedstawiającego obiekt", w: ["fizyczny bodziec docierający do zmysłów", "reakcja mięśniowa", "pobudzenie receptora"], e: "Jej funkcją jest przedstawianie w umyśle przedmiotów, osób i zdarzeń." },
+  { topic: "wprow", q: "Wyobrażenie charakteryzuje się:", c: "brakiem trwałości oraz ścisłym powiązaniem z percepcją", w: ["trwałością i niezależnością od percepcji", "wyłącznie formą werbalną", "całkowitą niezależnością od pamięci"], e: "To nietrwała struktura przypominająca spostrzeżenie, ściśle związana z percepcją." },
+  { topic: "wprow", q: "Wyobrażenie występuje:", c: "pod nieobecność wyobrażonego obiektu", w: ["tylko podczas obecności obiektu", "wyłącznie we śnie", "jedynie u dzieci"], e: "W przeciwieństwie do percepcji wyobrażenie powstaje, gdy obiekt nie działa już na zmysły." },
+  { topic: "wprow", q: "Wyobraźnia twórcza odpowiada za tworzenie wyobrażeń:", c: "konstrukcyjnie niemożliwych, np. pegaza czy syreny", w: ["obiektów wcześniej spostrzeganych i dobrze znanych", "wyłącznie dźwiękowych", "odruchowych"], e: "Wyobraźnia twórcza dotyczy obiektów konstrukcyjnie niemożliwych." },
+  { topic: "wprow", q: "Wyobraźnia odtwórcza dotyczy:", c: "obiektów wcześniej spostrzeganych i dobrze znanych, np. konia", w: ["obiektów fantastycznych", "abstrakcyjnych pojęć", "stanów emocjonalnych"], e: "Odtwórcza tworzy wyobrażenia obiektów już znanych z percepcji." },
+  { topic: "wprow", q: "Obraz umysłowy cechuje się:", c: "analogowym charakterem i ścisłą odpowiedniością do obiektu", w: ["charakterem cyfrowym i symbolicznym", "brakiem związku z obiektem", "wyłącznie charakterem werbalnym"], e: "Obraz umysłowy konia to jakby wewnętrzna fotografia obiektu w umyśle." },
+  { topic: "wprow", q: "W teorii Kosslyna komponent powierzchniowy wyobrażenia to:", c: "treść dostępna w doświadczeniu wewnętrznym, świadoma i nietrwała", w: ["zapis w pamięci długotrwałej", "kod czysto werbalny", "bodziec proksymalny"], e: "Powierzchniowy jest świadomy i nietrwały, dostępny w doświadczeniu wewnętrznym." },
+  { topic: "wprow", q: "W teorii Kosslyna komponent głęboki wyobrażenia:", c: "jest zapisany w pamięci długotrwałej i kodowany przestrzennie oraz analogowo", w: ["jest świadomy i nietrwały", "nie ma własności przestrzennych", "odpowiada bodźcowi dystalnemu"], e: "Komponent głęboki jest niedostępny świadomości i kodowany przestrzennie oraz analogowo." },
+  { topic: "wprow", q: "Pogląd, według którego wyobrażenia mają własności przestrzenne i specyficzne dla zmysłów, nazywany jest:", c: "stanowiskiem obrazowym", w: ["stanowiskiem propozycjonalnym", "teorią cech", "modelem sieciowym"], e: "To stanowisko obrazowe, reprezentowane m.in. przez Kosslyna i Paivio." },
+  { topic: "wprow", q: "Eksperyment Cooper i Sheparda (1973) dotyczył:", c: "rotacji mentalnych liter i cyfr prezentowanych pod różnymi kątami", w: ["słuchania dychotycznego", "percepcji głębi", "podzielności uwagi"], e: "Badani oceniali, czy znaki prezentowane pod różnymi kątami są normalne, czy w odbiciu lustrzanym." },
+  { topic: "wprow", q: "Hipoteza funkcjonalnej ekwiwalencji percepcji i wyobraźni zakłada, że:", c: "obiekty są obracane w wyobraźni tak samo, jak byłyby obracane w rzeczywistości fizycznej", w: ["wyobraźnia nie ma związku z percepcją", "percepcja jest zawsze szybsza od wyobraźni", "wyobrażenia są wyłącznie werbalne"], e: "Czas decyzji zależał od kąta rotacji, co wskazuje na te same operacje co w realnym obracaniu." },
+
+  // ===== PERCEPCJA WZROKOWA =====
+  { topic: "perc", q: "Analizator wzrokowy składa się z:", c: "receptora (oka), nerwu wzrokowego i korowej części", w: ["oka i mózgu", "receptora, nerwu i ucha", "wyłącznie siatkówki"], e: "To trzy części: receptor, nerw wzrokowy oraz korowa część analizatora." },
+  { topic: "perc", q: "Korowa część analizatora wzrokowego znajduje się w okolicy:", c: "potylicznej (pola 17, 18 wg Brodmanna)", w: ["czołowej", "skroniowej", "ciemieniowej"], e: "Korowa część leży w okolicy potylicznej, pola 17 i 18 wg Brodmanna." },
+  { topic: "perc", q: "Percepcja (spostrzeganie) to:", c: "proces aktywnej interpretacji danych zmysłowych z wykorzystaniem wiedzy i nastawienia", w: ["bierny odbiór bodźców", "reakcja odruchowa receptora", "wyłącznie czynność oka"], e: "To aktywna interpretacja danych zmysłowych prowadząca do rozpoznania obiektu." },
+  { topic: "perc", q: "Recepcja sensoryczna (sensepcja) jest procesem:", c: "pasywnym, polegającym na gromadzeniu informacji przez zmysły", w: ["aktywnym, wymagającym wiedzy", "świadomej interpretacji", "tworzenia wyobrażeń"], e: "Gromadzenie przez zmysły jest procesem pasywnym, dopiero percepcja wymaga aktywności mózgu." },
+  { topic: "perc", q: "Bodziec dystalny to bodziec:", c: "odległy względem receptorów, znajdujący się poza systemem poznawczym", w: ["wewnętrzny, bliski receptorom", "powstający na siatkówce", "będący impulsem nerwowym"], e: "Dystalny jest poza systemem poznawczym, odległy od receptorów." },
+  { topic: "perc", q: "Bodziec proksymalny to:", c: "wewnętrzny, bliski bodziec, np. obraz powstający na siatkówce", w: ["obiekt znajdujący się w otoczeniu", "bodziec poza systemem poznawczym", "reakcja ruchowa"], e: "Proksymalny jest bliski i wewnętrzny, jak obraz siatkówkowy." },
+  { topic: "perc", q: "Wrażenia to:", c: "najprostsze procesy psychiczne, wynik aktywności receptorów i dróg czuciowych", w: ["całościowe odzwierciedlenie obiektu", "interpretacja znaczenia bodźca", "struktury poznawcze"], e: "Odbiór bodźców prowadzi do wrażeń takich jak kolor, wielkość czy kształt." },
+  { topic: "perc", q: "Spostrzeżenie jest:", c: "całościowym odzwierciedleniem obiektów i wywołanych przez nie wrażeń", w: ["pojedynczym wrażeniem zmysłowym", "procesem czysto fizycznym", "reakcją receptora"], e: "Spostrzeżenie to całościowe odzwierciedlenie obiektu, proces psychologiczny." },
+  { topic: "perc", q: "Spostrzeganie przebiega w kierunku:", c: "od rejestracji wrażeń do identyfikacji obiektu", w: ["od identyfikacji obiektu do rejestracji wrażeń", "wyłącznie odgórnym", "niezależnym od wrażeń"], e: "Najpierw rejestrujemy wrażenia, potem identyfikujemy obiekt." },
+  { topic: "perc", q: "Przetwarzanie oddolne (bottom-up) polega na tym, że:", c: "percepcja jest budowana na bazie podstawowych informacji zmysłowych", w: ["oczekiwania służą rozpoznawaniu bodźców", "pomijamy dane zmysłowe", "korzystamy wyłącznie z pamięci"], e: "Oddolne zachodzi, gdy odbieramy podstawowe cechy zmysłowe i je integrujemy." },
+  { topic: "perc", q: "Przetwarzanie odgórne (top-down) zachodzi, gdy:", c: "wcześniejsze doświadczenia i oczekiwania służą rozpoznawaniu bodźców", w: ["odbieramy jedynie podstawowe cechy zmysłowe", "ignorujemy całą wiedzę", "receptor po prostu rejestruje bodziec"], e: "Odgórne wykorzystuje wiedzę, doświadczenie i oczekiwania." },
+  { topic: "perc", q: "Percepcja głębi umożliwia spostrzeganie:", c: "absolutnego dystansu obserwator-obiekt oraz względnego dystansu między obiektami", w: ["wyłącznie barwy", "tylko kształtu", "jedynie ruchu pozornego"], e: "Dzięki niej z obrazu 2D powstaje spostrzeżenie 3D." },
+  { topic: "perc", q: "Obraz obiektu zarejestrowany na siatkówce jest:", c: "dwuwymiarowy, podczas gdy spostrzeżenie jest trójwymiarowe", w: ["trójwymiarowy", "identyczny ze spostrzeżeniem", "zawsze czarno-biały"], e: "Obraz siatkówkowy jest 2D, a percepcja głębi czyni spostrzeżenie 3D." },
+  { topic: "perc", q: "Do wskazówek okulomotorycznych zalicza się:", c: "zbieżność (konwergencję) i akomodację", w: ["perspektywę liniową i wielkość cienia", "paralaksę ruchową", "ocenę kontrastu"], e: "Opierają się na odczuwaniu napięcia mięśni oka." },
+  { topic: "perc", q: "Silniejszą wskazówką okulomotoryczną jest:", c: "zbieżność (konwergencja), ponieważ lepiej ją odczuwamy", w: ["akomodacja", "perspektywa liniowa", "znajomość wielkości obiektu"], e: "Zbieżność czujemy lepiej, więc jest silniejszą wskazówką niż akomodacja." },
+  { topic: "perc", q: "Wskazówki monokularne wymagają użycia:", c: "jednego oka", w: ["obu oczu jednocześnie", "słuchu", "dotyku"], e: "Monokularne korzystają z jednego oka, binokularne z pary oczu." },
+  { topic: "perc", q: "Paralaksa ruchowa polega na tym, że podczas ruchu:", c: "obiekty bliższe wydają się poruszać szybciej niż odległe", w: ["wszystkie obiekty poruszają się tak samo szybko", "obiekty dalsze poruszają się szybciej", "obiekty całkowicie znikają"], e: "Im bliżej obiekt, tym szybciej zdaje się przesuwać względem obserwatora." },
+  { topic: "perc", q: "Widzenie stereoskopowe (stereooptyczne) to zdolność:", c: "oszacowania względnego dystansu obiektów znajdujących się obok siebie w polu wzrokowym", w: ["rozpoznawania barw", "widzenia w ciemności", "percepcji ruchu pozornego"], e: "Opiera się na tym, że każde oko odbiera nieco inny obraz obiektu." },
+  { topic: "perc", q: "Złudzenie Ponza polega na tym, że:", c: "górna pozioma linia wydaje się dłuższa od dolnej z powodu wskazówek perspektywy", w: ["koło otoczone większymi kołami wydaje się mniejsze", "figura jest niemożliwa do skonstruowania", "widzimy nieistniejące krawędzie"], e: "Zbieżne linie sugerują perspektywę toru, a stałość wielkości zmienia ocenę długości." },
+  { topic: "perc", q: "Złudzenie Ebbinghausa dotyczy:", c: "błędnej percepcji wielkości figury otoczonej innymi figurami", w: ["długości linii", "figur niemożliwych", "ruchu pozornego"], e: "Koło wśród mniejszych wydaje się większe niż identyczne koło wśród większych." },
+  { topic: "perc", q: "Figury niemożliwe to figury, które:", c: "można narysować zgodnie z zasadami perspektywy, ale nie da się ich zbudować w rzeczywistości", w: ["można skonstruować w rzeczywistości", "nie podlegają zasadom perspektywy", "zmieniają barwę"], e: "Spełniają zasady perspektywy na rysunku, lecz są fizycznie niewykonalne." },
+  { topic: "perc", q: "Nastawienie percepcyjne pokazuje, że interpretacja rysunku dwuznacznego zależy od:", c: "tego, co pokazano wcześniej", w: ["oświetlenia", "wielkości rysunku", "koloru tła"], e: "Wcześniejsza ekspozycja (np. seria zwierząt) zmienia interpretację rysunku dwuznacznego." },
+
+  // ===== UWAGA I KONTROLA POZNAWCZA =====
+  { topic: "uwaga", q: "Uwaga to system odpowiedzialny za:", c: "selekcję informacji i zapobieganie przeładowaniu systemu poznawczego", w: ["magazynowanie informacji", "tworzenie wyobrażeń", "kontrolę ruchów dowolnych"], e: "Uwaga selekcjonuje dane i chroni system przed nadmiarem informacji." },
+  { topic: "uwaga", q: "Istotą działania uwagi jest:", c: "selekcja, czyli wybór jednego obiektu percepcji, źródła stymulacji lub tematu myślenia", w: ["zapamiętywanie", "tworzenie reprezentacji", "generowanie emocji"], e: "Pierwsza prawda o uwadze: jej sensem jest selekcja." },
+  { topic: "uwaga", q: "Świadomość to:", c: "zdawanie sobie sprawy z treści własnych procesów psychicznych", w: ["selekcja bodźców", "reakcja odruchowa", "magazyn pamięci"], e: "To zdawanie sobie sprawy z tego, co spostrzegamy, myślimy lub czujemy." },
+  { topic: "uwaga", q: "Istnienie uwagi wynika przede wszystkim z:", c: "ograniczonych możliwości przetwarzania informacji przez umysł", w: ["nadmiaru energii", "potrzeb społecznych", "reakcji emocjonalnych"], e: "Efektywne działanie systemu jest możliwe tylko przy małych porcjach informacji naraz." },
+  { topic: "uwaga", q: "Cechą stanowiącą o istocie uwagi jest jej:", c: "selektywność", w: ["trwałość", "pojemność", "szybkość"], e: "Selektywność to zróżnicowanie sposobu przetwarzania informacji z różnych źródeł." },
+  { topic: "uwaga", q: "Przeszukiwanie pola percepcyjnego to:", c: "proces odnajdywania bodźców (sygnałów) o określonych właściwościach", w: ["monitorowanie otoczenia przez dłuższy czas", "przełączanie się między zadaniami", "wykonywanie kilku czynności naraz"], e: "To aktywne odnajdywanie bodźców o zadanych cechach." },
+  { topic: "uwaga", q: "Przedłużona koncentracja uwagi (czujność) umożliwia:", c: "monitorowanie otoczenia przez dłuższy czas w poszukiwaniu bodźców określonego typu", w: ["jednoczesne wykonywanie wielu czynności", "szybkie przełączanie zadań", "selekcję tylko jednego źródła"], e: "Badano ją m.in. zegarem Mackwortha." },
+  { topic: "uwaga", q: "Podzielność uwagi to zdolność:", c: "koncentracji na kilku źródłach informacji lub jednoczesnego wykonywania kilku czynności", w: ["przełączania się między zadaniami", "ignorowania dystraktorów", "długotrwałego monitorowania jednego źródła"], e: "Dotyczy obsługi kilku źródeł lub czynności jednocześnie." },
+  { topic: "uwaga", q: "Przerzutność uwagi to zdolność:", c: "przełączania się między dwoma zadaniami obsługiwanymi przez różne procesy przetwarzania", w: ["koncentracji na jednym źródle", "jednoczesnego wykonywania czynności", "ignorowania szumu informacyjnego"], e: "To zdolność do przełączania uwagi między zadaniami." },
+  { topic: "uwaga", q: "Bodźce zakłócające w procesie selekcji uwagi nazywamy:", c: "dystraktorami", w: ["sygnałami", "reprezentacjami", "wskazówkami"], e: "Sygnały to bodźce ważne, szum to informacje nieważne, dystraktory to bodźce zakłócające." },
+  { topic: "uwaga", q: "Doświadczenie Posnera dotyczyło:", c: "przyciągania uwagi oraz zjawiska zysków i kosztów", w: ["rotacji mentalnych", "percepcji głębi", "pojemności pamięci roboczej"], e: "Wskazówka po stronie przeciwnej do bodźca wydłużała czas reakcji." },
+  { topic: "uwaga", q: "W doświadczeniu Posnera koszty oznaczają:", c: "dłuższy czas reakcji na bodziec w obszarze, na którym nie skupiamy uwagi", w: ["krótszy czas reakcji w miejscu zogniskowania uwagi", "całkowity brak reakcji", "automatyczną błędną odpowiedź"], e: "Bodziec poza ogniskiem uwagi jest przetwarzany wolniej, to koszty." },
+  { topic: "uwaga", q: "Zyski w doświadczeniu Posnera to:", c: "krótszy czas reakcji i większa wrażliwość na bodziec w miejscu zogniskowania uwagi", w: ["dłuższy czas reakcji", "większa liczba błędów", "szybsze zmęczenie"], e: "Przesunięcie uwagi w dany kierunek usprawnia przetwarzanie stamtąd nadchodzących bodźców." },
+  { topic: "uwaga", q: "Uwaga mimowolna jest:", c: "przyciągana przez bodźce zewnętrzne", w: ["kierowana intencjonalnie i wolicjonalnie", "zawsze w pełni świadoma", "niezależna od bodźców"], e: "Mimowolną przyciągają bodźce z otoczenia, bez intencji podmiotu." },
+  { topic: "uwaga", q: "Uwaga dowolna jest:", c: "kierowana intencjonalnie (wolicjonalnie)", w: ["przyciągana mimowolnie przez bodźce", "niemożliwa do kontroli", "wyłącznie odruchowa"], e: "Dowolną kierujemy świadomie i celowo." },
+  { topic: "uwaga", q: "Zgodnie z trzema prawdami o uwadze:", c: "uwaga dotyczy zarówno postrzegania, jak i wyższych procesów poznawczych", w: ["uwaga dotyczy wyłącznie postrzegania", "świadomość jest jednoznaczna z uwagą", "uwaga nie wiąże się ze świadomością"], e: "Uwaga obejmuje percepcję i myślenie, a ze świadomością wiąże się, choć nie jest z nią tożsama." }
+];
+
+const TOPICS = {
+  wprow: "Wprowadzenie i reprezentacje",
+  perc: "Percepcja wzrokowa",
+  uwaga: "Uwaga i kontrola poznawcza"
+};
+
+const LETTERS = ["A", "B", "C", "D"];
+let selectedTopics = new Set(Object.keys(TOPICS));
+let chosenLen = 20;
+let quiz = [];
+let idx = 0;
+let score = 0;
+let answered = false;
+let wrongLog = [];
+
+function shuffle(a) {
+  const arr = a.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ---- start screen build ----
+function buildTopics() {
+  const host = document.getElementById("topicList");
+  host.innerHTML = "";
+  Object.keys(TOPICS).forEach(key => {
+    const count = QUESTIONS.filter(q => q.topic === key).length;
+    const row = document.createElement("div");
+    row.className = "topic-row on";
+    row.innerHTML = '<span class="tick"></span><span class="t-name">' + TOPICS[key] + '</span><span class="t-count">' + count + ' pyt.</span>';
+    row.onclick = () => {
+      if (selectedTopics.has(key)) {
+        if (selectedTopics.size === 1) return;
+        selectedTopics.delete(key);
+        row.classList.remove("on");
+      } else {
+        selectedTopics.add(key);
+        row.classList.add("on");
+      }
+      buildLenSeg();
+    };
+    host.appendChild(row);
+  });
+}
+
+function availableCount() {
+  return QUESTIONS.filter(q => selectedTopics.has(q.topic)).length;
+}
+
+function buildLenSeg() {
+  const seg = document.getElementById("lenSeg");
+  const avail = availableCount();
+  const opts = [10, 20, 30].filter(n => n < avail);
+  opts.push(avail); // "wszystkie"
+  seg.innerHTML = "";
+  if (chosenLen > avail) chosenLen = avail;
+  opts.forEach(n => {
+    const b = document.createElement("button");
+    b.textContent = (n === avail) ? "Wszystkie (" + avail + ")" : n;
+    if (n === avail && opts.length > 1) b.style.gridColumn = "span 1";
+    if (n === chosenLen) b.classList.add("active");
+    b.onclick = () => { chosenLen = n; buildLenSeg(); };
+    seg.appendChild(b);
+  });
+}
+
+// ---- quiz flow ----
+function startQuiz() {
+  const pool = QUESTIONS.filter(q => selectedTopics.has(q.topic));
+  quiz = shuffle(pool).slice(0, chosenLen).map(q => {
+    const opts = shuffle([{ t: q.c, ok: true }, ...q.w.map(t => ({ t, ok: false }))]);
+    return { topic: q.topic, q: q.q, e: q.e, opts };
+  });
+  idx = 0; score = 0; wrongLog = [];
+  document.getElementById("start").classList.add("hide");
+  document.getElementById("results").classList.add("hide");
+  document.getElementById("quiz").classList.remove("hide");
+  renderQ();
+}
+
+function renderQ() {
+  answered = false;
+  const item = quiz[idx];
+  document.getElementById("counter").textContent = "Pytanie " + (idx + 1) + " z " + quiz.length;
+  document.getElementById("scoreLive").textContent = score + " popr.";
+  document.getElementById("bar").style.width = (idx / quiz.length * 100) + "%";
+  document.getElementById("qTopic").textContent = TOPICS[item.topic];
+  document.getElementById("qText").textContent = item.q;
+
+  const host = document.getElementById("opts");
+  host.innerHTML = "";
+  item.opts.forEach((o, i) => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = '<span class="key">' + LETTERS[i] + '</span><span>' + o.t + '</span>';
+    b.onclick = () => choose(i, b);
+    host.appendChild(b);
+  });
+
+  document.getElementById("explain").classList.add("hide");
+  document.getElementById("navRow").classList.add("hide");
+  document.getElementById("nextBtn").textContent = (idx === quiz.length - 1) ? "Zobacz wynik" : "Następne pytanie";
+}
+
+function choose(i, btn) {
+  if (answered) return;
+  answered = true;
+  const item = quiz[idx];
+  const buttons = document.querySelectorAll("#opts .opt");
+  buttons.forEach((b, bi) => {
+    b.disabled = true;
+    if (item.opts[bi].ok) b.classList.add("correct");
+  });
+  if (item.opts[i].ok) {
+    score++;
+  } else {
+    btn.classList.add("wrong");
+    const correct = item.opts.find(o => o.ok).t;
+    wrongLog.push({ q: item.q, chosen: item.opts[i].t, correct });
+  }
+  const ex = document.getElementById("explain");
+  ex.innerHTML = "<b>Wyjaśnienie.</b> " + item.e;
+  ex.classList.remove("hide");
+  document.getElementById("scoreLive").textContent = score + " popr.";
+  document.getElementById("navRow").classList.remove("hide");
+}
+
+function next() {
+  if (idx < quiz.length - 1) {
+    idx++;
+    renderQ();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  document.getElementById("quiz").classList.add("hide");
+  document.getElementById("results").classList.remove("hide");
+  const pct = Math.round(score / quiz.length * 100);
+  document.getElementById("finalPct").textContent = pct + "%";
+  document.getElementById("finalLine").textContent =
+    score + " z " + quiz.length + " poprawnych odpowiedzi" + gradeNote(pct);
+
+  // per-topic breakdown
+  const byTopic = {};
+  quiz.forEach((item, i) => {
+    if (!byTopic[item.topic]) byTopic[item.topic] = { total: 0, correct: 0 };
+    byTopic[item.topic].total++;
+  });
+  // recompute correct per topic from wrongLog
+  const wrongQ = new Set(wrongLog.map(w => w.q));
+  quiz.forEach(item => {
+    if (!wrongQ.has(item.q)) byTopic[item.topic].correct++;
+  });
+  const bd = document.getElementById("breakdown");
+  bd.innerHTML = "";
+  Object.keys(byTopic).forEach(k => {
+    const t = byTopic[k];
+    const p = Math.round(t.correct / t.total * 100);
+    const row = document.createElement("div");
+    row.className = "bd-row";
+    row.innerHTML =
+      '<div class="bd-head"><span class="nm">' + TOPICS[k] + '</span><span class="vl">' + t.correct + '/' + t.total + '</span></div>' +
+      '<div class="bd-track"><div class="bd-fill" style="width:' + p + '%"></div></div>';
+    bd.appendChild(row);
+  });
+
+  // review
+  const rl = document.getElementById("reviewList");
+  rl.innerHTML = "";
+  if (wrongLog.length === 0) {
+    rl.innerHTML = '<p style="color:var(--muted)">Brak błędów. Komplet poprawnych odpowiedzi.</p>';
+  } else {
+    wrongLog.forEach(w => {
+      const d = document.createElement("div");
+      d.className = "review-q";
+      d.innerHTML =
+        '<p class="rq">' + w.q + '</p>' +
+        '<p class="ra bad">Twoja odpowiedź: ' + w.chosen + '</p>' +
+        '<p class="ra good">Poprawna: ' + w.correct + '</p>';
+      rl.appendChild(d);
+    });
+  }
+  document.getElementById("reviewWrap").classList.add("hide");
+  document.getElementById("toggleReview").textContent = "Pokaż błędy";
+}
+
+function gradeNote(p) {
+  if (p >= 90) return ". Bardzo dobry poziom.";
+  if (p >= 70) return ". Dobry wynik, warto dopracować słabsze tematy.";
+  if (p >= 50) return ". Materiał wymaga jeszcze powtórki.";
+  return ". Warto wrócić do slajdów i powtórzyć podstawy.";
+}
+
+// ---- wiring ----
+buildTopics();
+buildLenSeg();
+document.getElementById("startBtn").onclick = startQuiz;
+document.getElementById("nextBtn").onclick = next;
+document.getElementById("restartBtn").onclick = () => {
+  document.getElementById("results").classList.add("hide");
+  document.getElementById("start").classList.remove("hide");
+  buildLenSeg();
+};
+document.getElementById("toggleReview").onclick = () => {
+  const w = document.getElementById("reviewWrap");
+  const btn = document.getElementById("toggleReview");
+  if (w.classList.contains("hide")) {
+    w.classList.remove("hide");
+    btn.textContent = "Ukryj błędy";
+  } else {
+    w.classList.add("hide");
+    btn.textContent = "Pokaż błędy";
+  }
+};
+</script>
+</body>
+</html>
